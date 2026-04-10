@@ -1,6 +1,9 @@
 pipeline{
   agent any
 
+  parameters {
+     string(name: "App_Version", description: "provide application version")
+  }
 
   stages{
     stage("Checkout"){
@@ -24,6 +27,20 @@ pipeline{
           mvn test
           echo "-------- Testcases Execution Complete --------"
         """
+      }
+    }
+    stage("SonarQube Analysis") {
+      steps {
+        withSonarQubeEnv('sonarqube-server') {
+          sh """
+            echo "-------- Running SonarQube Analysis --------"
+            mvn sonar:sonar \
+            -Dsonar.projectKey=datastore \
+            -Dsonar.projectName=datastore \
+            -Dsonar.projectVersion=${App_Version}
+            echo "-------- SonarQube Analysis Complete --------"
+          """
+        }
       }
     }
   }
