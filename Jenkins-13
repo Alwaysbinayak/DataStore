@@ -69,7 +69,10 @@ pipeline{
       steps {
         sh """
           echo "-------- Scanning Docker Image --------"
-          trivy image datastore:"${App_Version}"
+          export TRIVY_CACHE_DIR=/tmp/trivy-cache
+
+          trivy image datastore:${App_Version}
+
           echo "-------- Scanning Docker Image Complete --------"
         """
       }
