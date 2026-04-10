@@ -5,6 +5,10 @@ pipeline{
      string(name: "App_Version", description: "provide application version")
   }
 
+  environment {
+    DOCKERHUB_CREDENTIALS=credentials("dockerhub")
+  }
+
   stages{
     stage("Checkout"){
       steps{
@@ -49,6 +53,15 @@ pipeline{
           echo "-------- Pushing Artifacts To S3 --------"
           aws s3 cp ./target/*.jar s3://datastore-jenkins-bkt/
           echo "-------- Pushing Artifacts To S3 Completed --------"
+        """
+      }
+    }
+   stage("Docker Image Build") {
+      steps {
+        sh """
+          echo "-------- Building Docker Image --------"
+          docker build -t datastore:"${App_Version}" .
+          echo "-------- Image Successfully Built --------"
         """
       }
     }
